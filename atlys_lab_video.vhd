@@ -53,25 +53,66 @@ architecture razz of atlys_lab_video is
 		column : OUT unsigned(10 downto 0)
 		);
 	END COMPONENT;
-	 signal pixel_clk, serialize_clk, serialize_clk_n, red_s, blue_s, green_s, blank, h_sync, v_sync, clock_s : std_logic;
+	
+		COMPONENT pixel_gen
+	PORT(
+		row : IN unsigned(10 downto 0);
+		column : IN unsigned(10 downto 0);
+		blank : IN std_logic;
+		ball_x : IN unsigned(10 downto 0);
+		ball_y : IN unsigned(10 downto 0);
+		paddle_y : IN unsigned(10 downto 0);          
+		r : OUT std_logic_vector(7 downto 0);
+		g : OUT std_logic_vector(7 downto 0);
+		b : OUT std_logic_vector(7 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT pong_control
+	PORT(
+		clk : IN std_logic;
+		reset : IN std_logic;
+		up : IN std_logic;
+		down : IN std_logic;
+		v_completed : IN std_logic;          
+		ball_x : OUT unsigned(10 downto 0);
+		ball_y : OUT unsigned(10 downto 0);
+		paddle_y : OUT unsigned(10 downto 0)
+		);
+	END COMPONENT;
+	
+	
+	 signal pixel_clk, serialize_clk, serialize_clk_n, red_s, blue_s, green_s, blank, h_sync, v_sync, clock_s, v_comp_sig : std_logic;
 	 signal red, blue, green : std_logic_vector(7 downto 0);
 	 signal sig_row, sig_column : unsigned(10 downto 0);
+	 signal ball_x_sig, ball_y_sig, paddle_y_sig : unsigned(10 downto 0);
+	 
 	 
 begin
 
 
-	pixel_gen_final : entity work.pixel_gen(Behavioral)
-		port map (
-			row => sig_row,
-			column => sig_column,
-			blank => blank,
-			--ball_x => open,
-			--ball_y => open,
-			--paddle_y => open,
-			r => red,
-			g => green,
-			b => blue
-    );
+	Inst_pixel_gen: pixel_gen PORT MAP(
+		row => sig_row ,
+		column => sig_column ,
+		blank => blank ,
+		ball_x => ball_x_sig  ,
+		ball_y => ball_y_sig ,
+		paddle_y => paddle_y_sig ,
+		r => red ,
+		g => green ,
+		b => blue
+	);
+	
+		Inst_pong_control: pong_control PORT MAP(
+		clk => clk ,
+		reset => reset ,
+		up => up,
+		down => down ,
+		v_completed => v_comp_sig,
+		ball_x => ball_x_sig,
+		ball_y => ball_y_sig,
+		paddle_y => paddle_y_sig
+	);
 	 
 
 	
@@ -80,7 +121,7 @@ begin
 		reset => reset,
 		h_sync => h_sync,
 		v_sync => v_sync,
-		v_completed => open,
+		v_completed => v_comp_sig,
 		blank => blank,
 		row => sig_row,
 		column => sig_column

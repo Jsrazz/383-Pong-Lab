@@ -33,9 +33,9 @@ entity pixel_gen is
     port ( row      : in unsigned(10 downto 0);
            column   : in unsigned(10 downto 0);
            blank    : in std_logic;
-			--  ball_x   : in unsigned(10 downto 0);
-         --  ball_y   : in unsigned(10 downto 0);
-         --  paddle_y : in unsigned(10 downto 0);
+			  ball_x   : in unsigned(10 downto 0);
+           ball_y   : in unsigned(10 downto 0);
+           paddle_y : in unsigned(10 downto 0);
            r        : out std_logic_vector(7 downto 0);
            g        : out std_logic_vector(7 downto 0);
            b        : out std_logic_vector(7 downto 0));
@@ -52,6 +52,17 @@ begin
 	r <= "00000000";
 	g <= "00000000";
 	b <= "00000000";
+		if(column > (ball_x - 5) and column < (ball_x + 5) and row > (ball_y - 5) and row < (ball_y + 5)) then
+		r <= (others => '1'); 
+		g <= (others => '0');
+		b <= (others => '0');
+		end if;
+		
+		if(column > 0 and column < 15 and row > (paddle_y - 50) and row < (paddle_y + 50)) then
+		r <= (others => '0'); 
+		g <= (others => '1');
+		b <= (others => '0');
+		end if;
 	
 		if (blank = '0') then
 			if ((((column > 200) and (column < 215)) and ((row > 80) and (row < 300)))
